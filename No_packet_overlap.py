@@ -9,7 +9,7 @@ import scipy.stats as stats
 import numpy as np
 
 def read_file(filepath, rvid):
-    num_rec = 0;
+    num_rec = 0
     RSSI = []
     cap = pyshark.FileCapture(filepath)
     for pkt in cap:
@@ -19,6 +19,16 @@ def read_file(filepath, rvid):
                 RSSI.append(int(pkt.wlan_radio.signal_dbm))
         except:
             continue
+
+    RSSI_mean = sum(RSSI) / len(RSSI)
+    z_critical = stats.norm.ppf(q=0.975)  # Get the z-critical value*
+    RSSI_std = np.std(RSSI)
+    margin_of_error = z_critical * (RSSI_std / np.sqrt(len(RSSI)))
+    interval = (RSSI_mean - margin_of_error, RSSI_mean + margin_of_error)
+    RSSI_confidence_interval[i].append(interval)
+    print(RSSI_mean, RSSI_confidence_interval)
+    return (num_rec, RSSI_mean, RSSI_confidence_interval)
+
 
 fig1, ax1 = plt.subplots(figsize=(5, 4))
 fig2, ax2 = plt.subplots(figsize=(5, 4))
