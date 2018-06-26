@@ -1,4 +1,5 @@
 import os
+from os.path import dirname
 import pyshark
 
 import matplotlib
@@ -43,12 +44,21 @@ def read_file(filepath, rvid):
     print(num_rec, rssi_mean, rssi_confidence_interval)
     return num_rec, rssi_mean, rssi_confidence_interval
 
-def errorbar_plot(ax, _x, _y, _err):
-    ax.errorbar(x = _x,
-                y = _y,
-                yerr = _err,
+def errorbar_plot(ax, n, _x, _y, _ci): #_ci: confidence interval
+    nz_x = []
+    nz_y = []
+    nz_err = []
+    for i in range(len(n)):
+        print(n[i])
+        if (n[i]):
+            nz_x.append(_x[i])
+            nz_y.append(_y[i])
+            nz_err.append((_ci[i][0] - _ci[i][1]) / 2)
+    ax.errorbar(x = nz_x,
+                y = nz_y,
+                yerr = nz_err,
                 fmt='o')
-    ax.plot(_x, _y,
+    ax.plot(nz_x, nz_y,
             c=(0.25, 0.25, 1.00),
             lw=1,
             zorder=10)
@@ -77,9 +87,9 @@ def main():
     cwd = os.getcwd()
 
     delay = ["9k"]
-    MC = [0.1, 0.5, 1, 5, 10, 100, 500, 600, 700, 800]
+    MC = [0.1, 0.5, 0.8, 0.9, 1, 2, 5, 10, 100, 500, 600, 700, 800]
     # MC = [0.1, 0.5, 1, 5]
-    MC_str = ['100u', '500u', '1m', '5m', '10m', '100m', '500m', '600m', '700m', '800m']
+    MC_str = ['100u', '500u', '800u', '900u', '1m', '2m', '5m', '10m', '100m', '500m', '600m', '700m', '800m']
 
     num_rv = [[0] * len(MC)] * len(delay)
     rssi_mean = [[0] * len(MC)] * len(delay)
@@ -88,19 +98,23 @@ def main():
 
     for i in range(0, len(delay)):
         for j in range(0, len(MC)):
-            file_path = cwd + "/Data/pdu200_delay" + delay[i] + "_MC" + MC_str[j] * 2 + "_br6.pcapng"
+            file_path = dirname(cwd) + "/data/pdu200_delay" + delay[i] + "_MC" + MC_str[j] * 2 + "_br6.pcapng"
             rv_id = "23:23:23:23:23:23"
             num_rv[i][j], rssi_mean[i][j], rssi_confidence_interval[i][j] = read_file(file_path, rv_id)
             packet_loss[i][j] = (1000 - num_rv[i][j]) / 1000
 
         # plot RSSI to multiple constant
-        errorbar_plot(ax1, MC[2:], rssi_mean[i][2:], [(top - bot) / 2 for top, bot in rssi_confidence_interval[i][2:]])
-        # plot packet loss to multiple constant
+        # ignore the part of num_rv[i]=0
+        for i in range(0, len(MC)):
+            if (num_rv[i]):
+                non_zero_start = i
+                break
+        errorbar_plot(ax1, num_rv[i], MC, rssi_mean[i], rssi_confidence_interval[i])
         line_plot(ax2, MC, packet_loss[i])
 
         # save figures
-        fig1.savefig(cwd + "/figure/pdu200_delay" + delay[i] + "_br6_RSSI.eps", format='eps', dpi=1000)
-        fig2.savefig(cwd + "/figure/pdu200_delay" + delay[i] + "_br6_Packetloss.eps", format='eps', dpi=1000)
+        fig1.savefig(dirname(cwd) + "/figure/pdu200_delay" + delay[i] + "_br6_RSSI.eps", format='eps', dpi=1000)
+        fig2.savefig(dirname(cwd) + "/figure/pdu200_delay" + delay[i] + "_br6_Packetloss.eps", format='eps', dpi=1000)
 
     return 0
 
