@@ -1,5 +1,11 @@
 # Created by .ignore support plugin (hsz.mobi)
 
-test.py
+example/test.py
 data
 .idea
+data_2
+example/diff_mc.py
+example/noise_vs_packet.py
+example/delay.py
+example/packet_overlap.py
+figure

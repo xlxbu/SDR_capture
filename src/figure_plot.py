@@ -36,6 +36,7 @@ def read_file(filepath, rvid):
         rssi_mean = sum(rssi) / len(rssi)
         z_critical = stats.norm.ppf(q=0.975)  # Get the z-critical value*
         rssi_std = np.std(rssi)
+        # print(type(rssi_std))
         margin_of_error = z_critical * (rssi_std / np.sqrt(len(rssi)))
         rssi_confidence_interval = (rssi_mean - margin_of_error, rssi_mean + margin_of_error)
     else:
@@ -59,14 +60,18 @@ def errorbar_plot(ax, n, _x, _y, _ci): #_ci: confidence interval
     ax.errorbar(x = nz_x,
                 y = nz_y,
                 yerr = nz_err,
-                fmt='o')
-    ax.plot(nz_x, nz_y,
-            c=(0.25, 0.25, 1.00),
-            lw=1,
-            zorder=10)
-    ax.set_xlabel('MC')
+                lw = 2,
+                fmt="s-",
+                elinewidth=2,
+                capsize=5,  # cap length for error bar
+                capthick=1
+                )
+    # ax.plot(nz_x, nz_y,
+    #         lw=1,
+    #         zorder=10)
+    ax.set_xlabel('Multiply constant')
     ax.set_xscale('log')
-    ax.set_ylabel('RSSI')
+    ax.set_ylabel('RSSI (dBm)')
     ax.set_xlim(xmin=_x[0], xmax=_x[-1])
     return 0
 
@@ -74,8 +79,8 @@ def line_plot(ax, _x, _y):
     ax.plot(_x, _y,
             lw=1,
             zorder=10,
-            marker = 'o')
-    ax.set_xlabel('MC')
+            marker = 's')
+    ax.set_xlabel('Multiply constant')
     ax.set_xscale('log')
-    ax.set_ylabel('Packet loss (%)')
+    ax.set_ylabel('Packet loss (100%)')
     ax.set_xlim(xmin=_x[0], xmax=_x[-1])

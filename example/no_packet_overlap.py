@@ -7,13 +7,13 @@ sys.path.append("../src/")
 from figure_plot import *
 
 def main():
-    fig1, ax1 = plt.subplots(figsize=(5, 5)) #fig1: RSSI to multiple constant
-    fig2, ax2 = plt.subplots(figsize=(5, 5)) #fig2: packet loss to multiple constant
+    fig1, ax1 = plt.subplots(figsize=(5, 3)) #fig1: RSSI to multiple constant
+    fig2, ax2 = plt.subplots(figsize=(5, 3)) #fig2: packet loss to multiple constant
 
     cwd = os.getcwd()
 
     delay = ["9k"]
-    MC = [0.1, 0.5, 0.8, 0.9, 1, 2, 5, 10, 100, 500, 600, 700, 800]
+    MC = [0.0001, 0.0005, 0.0008, 0.0009, 0.001, 0.002, 0.005, 0.010, 0.100, 0.500, 0.600, 0.700, 0.800]
     # MC = [0.1, 0.5, 1, 5]
     MC_str = ['100u', '500u', '800u', '900u', '1m', '2m', '5m', '10m', '100m', '500m', '600m', '700m', '800m']
 
@@ -37,6 +37,8 @@ def main():
                 break
         errorbar_plot(ax1, num_rv[i], MC, rssi_mean[i], rssi_confidence_interval[i])
         line_plot(ax2, MC, packet_loss[i])
+        fig1.tight_layout()
+        fig2.tight_layout()
 
         # save figures
         fig1.savefig(dirname(cwd) + "/figure/no_packet_overlap_br6_RSSI.eps", format='eps', dpi=1000)
